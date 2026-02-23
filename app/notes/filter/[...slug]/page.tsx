@@ -1,0 +1,66 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+
+import { getNotes } from "@/lib/api";
+import NotesClient from "@/app/notes/filter/[...slug]/Notes.client";
+import { Metadata } from "next";
+
+interface PageProps {
+  params: Promise<{ slug: string[] }>;
+}
+
+export const generateMetadata = async ({
+  params,
+}: PageProps): Promise<Metadata> => {
+  const { slug } = await params;
+
+  const tag = slug[0];
+
+  return {
+    title: `filtered notes by ${tag}`,
+    description: `There are notes filtered by tag:${tag}`,
+    openGraph: {
+      title: `filtered notes by ${tag}`,
+      description: `There are notes filtered by tag:${tag}`,
+      url: `https://08-zustand-flax-nu.vercel.app/notes/filter/${tag}`,
+      images: [
+        {
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+          width: 1200,
+          height: 630,
+          alt: "notes",
+        },
+      ],
+      type: "website",
+    },
+  };
+};
+
+const Page = async ({ params }: PageProps) => {
+  const queryClient = new QueryClient();
+
+  const { slug } = await params;
+
+  const tag = slug[0];
+
+  await queryClient.prefetchQuery({
+    queryKey: ["getNotes", 1, tag],
+    queryFn: () =>
+      getNotes({
+        page: 1,
+        search: "",
+        tag: tag === "all" ? undefined : tag,
+      }),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NotesClient filterTag={tag} />
+    </HydrationBoundary>
+  );
+};
+
+export default Page;
