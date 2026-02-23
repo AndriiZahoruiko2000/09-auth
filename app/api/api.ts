@@ -1,5 +1,5 @@
 import axios from "axios";
 
-export const serverAPI = axios.create({
+export const globalServerAPI = axios.create({
   baseURL: "https://notehub-public.goit.study/api",
 });
