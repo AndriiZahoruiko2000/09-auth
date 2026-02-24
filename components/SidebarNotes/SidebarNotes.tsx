@@ -1,3 +1,4 @@
+import Link from "next/link";
 import css from "./SidebarNotes.module.css";
 
 const SidebarNotes = () => {
@@ -6,34 +7,34 @@ const SidebarNotes = () => {
       {/* список тегів */}
       <li className={css.menuItem}>
         {" "}
-        <a href={`/notes/filter/all`} className={css.menuLink}>
+        <Link href={`/notes/filter/all`} className={css.menuLink}>
           All notes{" "}
-        </a>{" "}
+        </Link>{" "}
       </li>
       <li className={css.menuItem}>
-        <a href={`/notes/filter/Todo`} className={css.menuLink}>
+        <Link href={`/notes/filter/Todo`} className={css.menuLink}>
           Todo
-        </a>
+        </Link>
       </li>
       <li className={css.menuItem}>
-        <a href={`/notes/filter/Work`} className={css.menuLink}>
+        <Link href={`/notes/filter/Work`} className={css.menuLink}>
           Work
-        </a>
+        </Link>
       </li>
       <li className={css.menuItem}>
-        <a href={`/notes/filter/Personal`} className={css.menuLink}>
+        <Link href={`/notes/filter/Personal`} className={css.menuLink}>
           Personal
-        </a>
+        </Link>
       </li>
       <li className={css.menuItem}>
-        <a href={`/notes/filter/Meeting`} className={css.menuLink}>
+        <Link href={`/notes/filter/Meeting`} className={css.menuLink}>
           Meeting
-        </a>
+        </Link>
       </li>
       <li className={css.menuItem}>
-        <a href={`/notes/filter/Shopping`} className={css.menuLink}>
+        <Link href={`/notes/filter/Shopping`} className={css.menuLink}>
           Shopping
-        </a>
+        </Link>
       </li>
     </ul>
   );

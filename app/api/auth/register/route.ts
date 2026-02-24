@@ -4,9 +4,11 @@ import { cookies } from "next/headers";
 import { parse } from "cookie";
 
 export const POST = async (req: NextRequest) => {
+  console.log("HELLO REGISTER");
+
   try {
     const body = await req.json();
-    const response = await globalServerAPI.post("/auth/login", body);
+    const response = await globalServerAPI.post("/auth/register", body);
 
     const cookiesStore = await cookies();
     const setCookies = response.headers["set-cookie"];

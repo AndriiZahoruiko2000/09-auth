@@ -4,5 +4,5 @@ export interface AuthBody {
 }
 
 export interface RefreshResponse {
-  message: string;
+  success: boolean;
 }

@@ -1,7 +1,11 @@
+import { AuthBody, RefreshResponse } from "@/types/auth";
+
+import { User } from "@/types/user";
+
 import { GetNotesParams, GetNotesResponse, NewNote, Note } from "@/types/note";
 import { serverAPI } from "./api";
 
-export async function getNotes(userParams: GetNotesParams) {
+export async function fetchNotes(userParams: GetNotesParams) {
   const params: GetNotesParams = {
     perPage: 12,
     ...userParams,
@@ -29,4 +33,29 @@ export async function deleteNoteById(id: string) {
 export async function updateNoteById(id: string, body: NewNote) {
   const res = await serverAPI.patch<Note>(`/notes/${id}`, body);
   return res.data;
+}
+
+export const register = async (body: AuthBody) => {
+  const response = await serverAPI.post<User>("/auth/register", body);
+  return response.data;
+};
+
+export const login = async (body: AuthBody) => {
+  const response = await serverAPI.post<User>("/auth/login", body);
+  return response.data;
+};
+
+export const logout = async () => {
+  const response = await serverAPI.post("/auth/logout");
+  return response.data;
+};
+
+export const refresh = async () => {
+  const response = await serverAPI.get<RefreshResponse>("/auth/session");
+  return response.data;
+};
+
+export async function getMe() {
+  const response = await serverAPI.get("/users/me");
+  return response.data;
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useDebounce } from "use-debounce";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getNotes } from "@/lib/api";
+
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 
@@ -12,6 +12,7 @@ import NoteList from "@/components/NoteList/NoteList";
 
 import { Note } from "@/types/note";
 import Link from "next/link";
+import { fetchNotes } from "@/lib/api/clientApi";
 
 interface NotesClientProps {
   filterTag: string;
@@ -28,9 +29,9 @@ const NotesClient = ({ filterTag }: NotesClientProps) => {
   const [query] = useDebounce(search, 1000);
 
   const noteQuery = useQuery({
-    queryKey: ["getNotes", page, query, filterTag],
+    queryKey: ["fetchNotes", page, query, filterTag],
     queryFn: () =>
-      getNotes({
+      fetchNotes({
         page,
         search: query,
         tag: filterTag === "all" ? undefined : filterTag,
