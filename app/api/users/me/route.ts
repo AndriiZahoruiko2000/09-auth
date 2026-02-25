@@ -1,15 +1,26 @@
 import { cookies } from "next/headers";
-import { globalServerAPI } from "../../api";
+import { ApiError, api } from "../../api";
 import { NextRequest, NextResponse } from "next/server";
-
+export const dynamic = "force-dynamic";
 export const GET = async () => {
-  const cookieStore = await cookies();
-  const response = await globalServerAPI.get("/users/me", {
-    headers: {
-      Cookie: cookieStore.toString(),
-    },
-  });
-  return NextResponse.json(response.data);
+  try {
+    const cookieStore = await cookies();
+    const response = await api.get("/users/me", {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    });
+    return NextResponse.json(response.data);
+  } catch (error) {
+    const err = error as ApiError;
+
+    return NextResponse.json(
+      {
+        error: err.response?.data?.error ?? err.message,
+      },
+      { status: err.status },
+    );
+  }
 };
 
 export const PATCH = async (req: NextRequest) => {
@@ -19,7 +30,7 @@ export const PATCH = async (req: NextRequest) => {
     const body = await req.json();
     console.log(body);
 
-    const response = await globalServerAPI.patch("/users/me", body, {
+    const response = await api.patch("/users/me", body, {
       headers: {
         Cookie: cookieStore.toString(),
       },
@@ -28,9 +39,13 @@ export const PATCH = async (req: NextRequest) => {
 
     return NextResponse.json(response.data);
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(error, {
-      status: 500,
-    });
+    const err = error as ApiError;
+
+    return NextResponse.json(
+      {
+        error: err.response?.data?.error ?? err.message,
+      },
+      { status: err.status },
+    );
   }
 };

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { globalServerAPI } from "../../api";
+import { ApiError, api } from "../../api";
 import { NextResponse } from "next/server";
 import { parse } from "cookie";
 
@@ -20,7 +20,7 @@ export const GET = async () => {
       });
     }
 
-    const response = await globalServerAPI.get("/auth/session", {
+    const response = await api.get("/auth/session", {
       headers: {
         Cookie: cookiesStore.toString(),
       },
@@ -29,7 +29,7 @@ export const GET = async () => {
     const setCookies = response.headers["set-cookie"];
     if (!setCookies)
       return NextResponse.json("smth going wrong", {
-        status: 400,
+        status: 401,
       });
 
     const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
@@ -52,8 +52,13 @@ export const GET = async () => {
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json(error, {
-      status: 400,
-    });
+    const err = error as ApiError;
+
+    return NextResponse.json(
+      {
+        error: err.response?.data?.error ?? err.message,
+      },
+      { status: err.status },
+    );
   }
 };

@@ -9,10 +9,13 @@ import { useRouter } from "next/navigation";
 
 const AuthNavigation = () => {
   const isAuth = useAuthStore((s) => s.isAuthenticated);
+  const clearStore = useAuthStore((s) => s.clearIsAuthenticated);
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
 
   const handleLogout = async () => {
     const response = await logout();
+    clearStore();
     router.push("/sign-in");
   };
 
@@ -30,7 +33,7 @@ const AuthNavigation = () => {
             </Link>
           </li>
           <li className={css.navigationItem}>
-            <p className={css.userEmail}>User email</p>
+            <p className={css.userEmail}>{user?.email}</p>
             <button className={css.logoutButton} onClick={handleLogout}>
               Logout
             </button>

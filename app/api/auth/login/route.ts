@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { globalServerAPI } from "../../api";
+import { ApiError, api } from "../../api";
 import { cookies } from "next/headers";
 import { parse } from "cookie";
 
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    const response = await globalServerAPI.post("/auth/login", body);
+    const response = await api.post("/auth/login", body);
 
     const cookiesStore = await cookies();
     const setCookies = response.headers["set-cookie"];
     if (!setCookies)
       return NextResponse.json("smth going wrong", {
-        status: 400,
+        status: 401,
       });
 
     const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
@@ -35,8 +35,13 @@ export const POST = async (req: NextRequest) => {
     }
     return NextResponse.json(response.data);
   } catch (error) {
-    return NextResponse.json(error, {
-      status: 400,
-    });
+    const err = error as ApiError;
+
+    return NextResponse.json(
+      {
+        error: err.response?.data?.error ?? err.message,
+      },
+      { status: err.status },
+    );
   }
 };

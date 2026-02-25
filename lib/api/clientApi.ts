@@ -1,9 +1,13 @@
 import { AuthBody, RefreshResponse } from "@/types/auth";
 
-import { UpdateUserBody, User } from "@/types/user";
+import { User } from "@/types/user";
 
 import { GetNotesParams, GetNotesResponse, NewNote, Note } from "@/types/note";
 import { serverAPI } from "./api";
+export interface UpdateUserBody {
+  email?: string;
+  username: string;
+}
 
 export async function fetchNotes(userParams: GetNotesParams) {
   const params: GetNotesParams = {
