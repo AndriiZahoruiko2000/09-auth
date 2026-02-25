@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ApiError, api } from "../../api";
 import { cookies } from "next/headers";
+import { isAxiosError } from "axios";
+import { logErrorResponse } from "@/lib/api/logErrorResponse";
 
 interface GetProps {
   params: Promise<{ id: string }>;
@@ -17,13 +19,23 @@ export const GET = async (req: NextRequest, { params }: GetProps) => {
     });
     return NextResponse.json(response.data);
   } catch (error) {
-    const err = error as ApiError;
+    if (isAxiosError(error)) {
+      logErrorResponse(error);
+
+      return NextResponse.json(
+        {
+          error:
+            (error.response?.data as any)?.error ??
+            (error.response?.data as any)?.message ??
+            error.message,
+        },
+        { status: error.response?.status ?? 500 },
+      );
+    }
 
     return NextResponse.json(
-      {
-        error: err.response?.data?.error ?? err.message,
-      },
-      { status: err.status },
+      { error: "Internal Server Error" },
+      { status: 500 },
     );
   }
 };
@@ -31,7 +43,7 @@ export const GET = async (req: NextRequest, { params }: GetProps) => {
 export const PATCH = async (req: NextRequest, { params }: GetProps) => {
   try {
     const cookieStore = await cookies();
-    const body = req.json();
+    const body = await req.json();
     const { id } = await params;
     const response = await api.patch(`/notes/${id}`, body, {
       headers: {
@@ -40,13 +52,23 @@ export const PATCH = async (req: NextRequest, { params }: GetProps) => {
     });
     return NextResponse.json(response.data);
   } catch (error) {
-    const err = error as ApiError;
+    if (isAxiosError(error)) {
+      logErrorResponse(error);
+
+      return NextResponse.json(
+        {
+          error:
+            (error.response?.data as any)?.error ??
+            (error.response?.data as any)?.message ??
+            error.message,
+        },
+        { status: error.response?.status ?? 500 },
+      );
+    }
 
     return NextResponse.json(
-      {
-        error: err.response?.data?.error ?? err.message,
-      },
-      { status: err.status },
+      { error: "Internal Server Error" },
+      { status: 500 },
     );
   }
 };
@@ -62,13 +84,23 @@ export const DELETE = async (req: NextRequest, { params }: GetProps) => {
     });
     return NextResponse.json(response.data);
   } catch (error) {
-    const err = error as ApiError;
+    if (isAxiosError(error)) {
+      logErrorResponse(error);
+
+      return NextResponse.json(
+        {
+          error:
+            (error.response?.data as any)?.error ??
+            (error.response?.data as any)?.message ??
+            error.message,
+        },
+        { status: error.response?.status ?? 500 },
+      );
+    }
 
     return NextResponse.json(
-      {
-        error: err.response?.data?.error ?? err.message,
-      },
-      { status: err.status },
+      { error: "Internal Server Error" },
+      { status: 500 },
     );
   }
 };

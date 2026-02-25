@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ApiError, api } from "../../api";
+import { api } from "../../api";
 import { cookies } from "next/headers";
 import { parse } from "cookie";
+import { isAxiosError } from "axios";
+import { logErrorResponse } from "@/lib/api/logErrorResponse";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -35,13 +37,23 @@ export const POST = async (req: NextRequest) => {
     }
     return NextResponse.json(response.data);
   } catch (error) {
-    const err = error as ApiError;
+    if (isAxiosError(error)) {
+      logErrorResponse(error);
+
+      return NextResponse.json(
+        {
+          error:
+            (error.response?.data as any)?.error ??
+            (error.response?.data as any)?.message ??
+            error.message,
+        },
+        { status: error.response?.status ?? 500 },
+      );
+    }
 
     return NextResponse.json(
-      {
-        error: err.response?.data?.error ?? err.message,
-      },
-      { status: err.status },
+      { error: "Internal Server Error" },
+      { status: 500 },
     );
   }
 };

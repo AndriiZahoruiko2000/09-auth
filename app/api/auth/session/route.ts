@@ -1,7 +1,9 @@
 import { cookies } from "next/headers";
-import { ApiError, api } from "../../api";
+import { api } from "../../api";
 import { NextResponse } from "next/server";
 import { parse } from "cookie";
+import { isAxiosError } from "axios";
+import { logErrorResponse } from "@/lib/api/logErrorResponse";
 
 export const GET = async () => {
   try {
@@ -27,10 +29,7 @@ export const GET = async () => {
     });
 
     const setCookies = response.headers["set-cookie"];
-    if (!setCookies)
-      return NextResponse.json("smth going wrong", {
-        status: 401,
-      });
+    if (!setCookies) return NextResponse.json({ success: false });
 
     const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
 
@@ -52,13 +51,23 @@ export const GET = async () => {
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    const err = error as ApiError;
+    if (isAxiosError(error)) {
+      logErrorResponse(error);
+
+      return NextResponse.json(
+        {
+          error:
+            (error.response?.data as any)?.error ??
+            (error.response?.data as any)?.message ??
+            error.message,
+        },
+        { status: error.response?.status ?? 500 },
+      );
+    }
 
     return NextResponse.json(
-      {
-        error: err.response?.data?.error ?? err.message,
-      },
-      { status: err.status },
+      { error: "Internal Server Error" },
+      { status: 500 },
     );
   }
 };
