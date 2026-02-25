@@ -1,16 +1,17 @@
 import Link from "next/link";
 import css from "./Page.module.css";
 import { Metadata } from "next";
-import { useAuthStore } from "@/lib/store/authStore";
+
 import { getMe } from "@/lib/api/serverApi";
+import Image from "next/image";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const currentUser = await getMe();
   return {
-    title: `infor about user: ${currentUser}`,
+    title: `infor about user: ${currentUser.username}`,
     description: `here u can see email ${currentUser.email}`,
     openGraph: {
-      title: `infor about user: ${currentUser}`,
+      title: `infor about user: ${currentUser.username}`,
       description: `here u can see email ${currentUser.email}`,
     },
   };
@@ -29,7 +30,7 @@ const Page = async () => {
           </Link>
         </div>
         <div className={css.avatarWrapper}>
-          <img
+          <Image
             src={currentUser.avatar}
             alt="User Avatar"
             width={120}

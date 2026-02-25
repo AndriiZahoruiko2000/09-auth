@@ -4,12 +4,17 @@ import { useAuthStore } from "@/lib/store/authStore";
 import css from "./Page.module.css";
 import { updateUser } from "@/lib/api/clientApi";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Page = () => {
   const user = useAuthStore((s) => s.user);
   const userName = user?.username;
   const setUser = useAuthStore((s) => s.setUser);
   const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/profile");
+  };
 
   const handleSubmit = async (formData: FormData) => {
     const inputUserName = formData.get("username") as string;
@@ -29,13 +34,15 @@ const Page = () => {
       <div className={css.profileCard}>
         <h1 className={css.formTitle}>Edit Profile</h1>
 
-        <img
-          src={user?.avatar}
-          alt="User Avatar"
-          width={120}
-          height={120}
-          className={css.avatar}
-        />
+        {user?.avatar && (
+          <Image
+            src={user?.avatar}
+            alt="User Avatar"
+            width={120}
+            height={120}
+            className={css.avatar}
+          />
+        )}
 
         <form className={css.profileInfo} action={handleSubmit}>
           <div className={css.usernameWrapper}>
@@ -49,13 +56,17 @@ const Page = () => {
             />
           </div>
 
-          <p>Email: user_email@example.com</p>
+          <p>Email: {user?.email}</p>
 
           <div className={css.actions}>
             <button type="submit" className={css.saveButton}>
               Save
             </button>
-            <button type="button" className={css.cancelButton}>
+            <button
+              type="button"
+              className={css.cancelButton}
+              onClick={handleClick}
+            >
               Cancel
             </button>
           </div>
