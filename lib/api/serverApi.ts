@@ -1,6 +1,7 @@
 import { GetNotesParams, GetNotesResponse, Note } from "@/types/note";
 import { serverAPI } from "./api";
 import { cookies } from "next/headers";
+import { User } from "@/types/user";
 
 export async function fetchNoteById(id: string) {
   const cookieStore = await cookies();
@@ -29,7 +30,7 @@ export async function fetchNotes(userParams: GetNotesParams) {
 
 export async function getMe() {
   const cookieStore = await cookies();
-  const response = await serverAPI.get("/users/me", {
+  const response = await serverAPI.get<User>("/users/me", {
     headers: {
       Cookie: cookieStore.toString(),
     },
@@ -44,5 +45,5 @@ export async function checkSession() {
       Cookie: cookieStore.toString(),
     },
   });
-  return response.data;
+  return response;
 }

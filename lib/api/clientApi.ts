@@ -1,6 +1,6 @@
 import { AuthBody, RefreshResponse } from "@/types/auth";
 
-import { User } from "@/types/user";
+import { UpdateUserBody, User } from "@/types/user";
 
 import { GetNotesParams, GetNotesResponse, NewNote, Note } from "@/types/note";
 import { serverAPI } from "./api";
@@ -57,5 +57,10 @@ export const refresh = async () => {
 
 export async function getMe() {
   const response = await serverAPI.get("/users/me");
+  return response.data;
+}
+
+export async function updateUser(body: UpdateUserBody) {
+  const response = await serverAPI.patch<User>("/users/me", body);
   return response.data;
 }

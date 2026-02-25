@@ -20,7 +20,6 @@ const AuthNavigation = () => {
     <>
       {isAuth && (
         <>
-          {" "}
           <li className={css.navigationItem}>
             <Link
               href="/profile"

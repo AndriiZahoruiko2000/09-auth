@@ -5,6 +5,6 @@ export interface User {
 }
 
 export interface UpdateUserBody {
-  email: string;
-  userName: string;
+  email?: string;
+  username: string;
 }
