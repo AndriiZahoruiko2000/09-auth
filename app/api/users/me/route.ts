@@ -29,7 +29,7 @@ export const PATCH = async (req: NextRequest) => {
     return NextResponse.json(response.data);
   } catch (error) {
     console.log(error);
-    return NextResponse.json(error.response, {
+    return NextResponse.json(error, {
       status: 500,
     });
   }
