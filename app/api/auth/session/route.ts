@@ -1,73 +1,55 @@
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { api } from "../../api";
-import { NextResponse } from "next/server";
 import { parse } from "cookie";
 import { isAxiosError } from "axios";
-import { logErrorResponse } from "@/lib/api/logErrorResponse";
+import { logErrorResponse } from "../../_utils/utils";
 
-export const GET = async () => {
+export async function GET() {
   try {
-    const cookiesStore = await cookies();
-    const accessToken = cookiesStore.get("accessToken");
-    const refreshToken = cookiesStore.get("refreshToken");
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    const refreshToken = cookieStore.get("refreshToken")?.value;
+
     if (accessToken) {
-      return NextResponse.json({
-        success: true,
-      });
+      return NextResponse.json({ success: true });
     }
 
-    if (!refreshToken) {
-      return NextResponse.json({
-        success: false,
+    if (refreshToken) {
+      const apiRes = await api.get("auth/session", {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
       });
-    }
 
-    const response = await api.get("/auth/session", {
-      headers: {
-        Cookie: cookiesStore.toString(),
-      },
-    });
+      const setCookie = apiRes.headers["set-cookie"];
 
-    const setCookies = response.headers["set-cookie"];
-    if (!setCookies) return NextResponse.json({ success: false });
+      if (setCookie) {
+        const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
+        for (const cookieStr of cookieArray) {
+          const parsed = parse(cookieStr);
 
-    const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
+          const options = {
+            expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
+            path: parsed.Path,
+            maxAge: Number(parsed["Max-Age"]),
+          };
 
-    for (const item of cookieArray) {
-      const parsedItem = parse(item);
-      const options = {
-        expires: parsedItem.Expires ? new Date(parsedItem.Expires) : undefined,
-        path: parsedItem.Path,
-        maxAge: Number(parsedItem["Max-Age"]),
-      };
-
-      if (parsedItem.refreshToken) {
-        cookiesStore.set("refreshToken", parsedItem.refreshToken, options);
-      }
-
-      if (parsedItem.accessToken) {
-        cookiesStore.set("accessToken", parsedItem.accessToken, options);
+          if (parsed.accessToken)
+            cookieStore.set("accessToken", parsed.accessToken, options);
+          if (parsed.refreshToken)
+            cookieStore.set("refreshToken", parsed.refreshToken, options);
+        }
+        return NextResponse.json({ success: true }, { status: 200 });
       }
     }
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: false }, { status: 200 });
   } catch (error) {
     if (isAxiosError(error)) {
-      logErrorResponse(error);
-
-      return NextResponse.json(
-        {
-          error:
-            (error.response?.data as any)?.error ??
-            (error.response?.data as any)?.message ??
-            error.message,
-        },
-        { status: error.response?.status ?? 500 },
-      );
+      logErrorResponse(error.response?.data);
+      return NextResponse.json({ success: false }, { status: 200 });
     }
-
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    logErrorResponse({ message: (error as Error).message });
+    return NextResponse.json({ success: false }, { status: 200 });
   }
-};
+}
